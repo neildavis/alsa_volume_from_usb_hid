@@ -40,22 +40,12 @@ get_alsa_mixer_volume() {
   fi
 }
 
-volume_increment() {
+volume_delta() {
   # if muted, unmute
   if [[ -n "${muted_vol}" ]]; then
     volume_mute_toggle
   else
-    amixer set "${mixer_name}" 2+ &> /dev/null
-    get_alsa_mixer_volume
-  fi
-}
-
-volume_decrement() {
-  # if muted, unmute
-  if [[ -n "${muted_vol}" ]]; then
-    volume_mute_toggle
-  else
-    amixer set "${mixer_name}" 2- &> /dev/null
+    amixer set "${mixer_name}" $1 &> /dev/null
     get_alsa_mixer_volume
   fi
 }
@@ -119,9 +109,9 @@ while true; do
         continue
       fi
       if [[ "${key_str}" == "KEY_VOLUMEUP" ]]; then
-        volume_increment
+        volume_delta "2+"
       elif [[ "${key_str}" == "KEY_VOLUMEDOWN" ]]; then
-        volume_decrement
+        volume_delta "2-"
       elif [[ "${key_str}" == "KEY_MUTE" ]]; then
         volume_mute_toggle
       fi
