@@ -1,2 +1,0 @@
-SUBSYSTEM="input", ATTRS{name}=="Pimoroni Tiny 2040 (2MB) Consumer Control", ACTION=="add", RUN="systemctl start alsa_vol_from_usb_hid"
-SUBSYSTEM="input", ATTRS{name}=="Pimoroni Tiny 2040 (2MB) Consumer Control", ACTION=="remove", RUN="systemctl stop alsa_vol_from_usb_hid"

@@ -6,3 +6,6 @@ Type=simple
 User=pi
 ExecStart=%TARGET%
 Restart=on-failure
+
+[Install]
+WantedBy=default.target

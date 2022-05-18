@@ -5,12 +5,12 @@ This is a small script-based daemon for Linux systems using the Advanced Linux S
 
 As far as I know, this should 'just work' for the default ALSA playback device without the need for this daemon. However, it seems some ALSA configurations break this. In my case I was using the [ALSA SoftVol](https://alsa.opensrc.org/Softvol) plugin to enable a volume control for an [Adafruit MAX98357 I2S Class-D Mono Amp](https://learn.adafruit.com/adafruit-max98357-i2s-class-d-mono-amp?view=all) PCM device which has no volume control itself.
 
-The daemon installs as a [systemd](https://www.linux.com/training-tutorials/understanding-and-using-systemd/) service, and uses [udev](https://www.linux.com/news/udev-introduction-device-management-modern-linux-system/) rules to start/stop the service when the selected USB HID device is plugged in or removed.
+The daemon installs as a [systemd](https://www.linux.com/training-tutorials/understanding-and-using-systemd/) service.
 
 ## Usage ##
 The script uses the default ALSA playback mixer control.
 
-You may wish to edit the script (`src/alsa_vol)from_usb_hid.sh`) and udev rules file (`config/etc/udev/rules.d/80-alsa-vol-from-usb-hid.rules`) to choose attributes to match your USB HID device. It's currently hardcoded for a [2MB Pimoroni Tiny2040](https://shop.pimoroni.com/products/tiny-2040?variant=39560012300371) which is what I am using.
+You may wish to edit the script (`src/alsa_vol)from_usb_hid.sh`) to choose your preferred USB HID device. It's currently hardcoded for a [2MB Pimoroni Tiny2040](https://shop.pimoroni.com/products/tiny-2040?variant=39560012300371) which is what I am using.
 
 ### Installation
 
