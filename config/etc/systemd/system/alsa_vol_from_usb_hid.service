@@ -4,7 +4,7 @@ Description=ALSA Volume Control from USB HID Consumer Control
 [Service]
 Type=simple
 User=pi
-ExecStart=%TARGET%
+ExecStart=%TARGET% %USBHID_DEVICE%
 Restart=on-failure
 
 [Install]
