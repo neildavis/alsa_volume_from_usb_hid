@@ -8,15 +8,32 @@ As far as I know, this should 'just work' for the default ALSA playback device w
 The daemon installs as a [systemd](https://www.linux.com/training-tutorials/understanding-and-using-systemd/) service.
 
 ## Usage ##
-The script uses the default ALSA playback mixer control.
+### Alsa Mixer ###
+The script uses the default ALSA playback mixer control. This is one returned from the following command:
+```sh
+amixer -D default
+```
 
-You may wish to edit the script (`src/alsa_vol)from_usb_hid.sh`) to choose your preferred USB HID device. It's currently hardcoded for a [2MB Pimoroni Tiny2040](https://shop.pimoroni.com/products/tiny-2040?variant=39560012300371) which is what I am using.
+### USB HID Device ###
+By default, with no other command line arguments the daemon will select the first
+USB HID input device found under `/dev/input`. 
+This can be overridden by specifying an alternative device when starting the daemon.
+e.g. from the root of this repo:
+```sh
+src/alsa_vol_from_usb_hid.sh /dev/input/event1
+```
+However most of the time you will want the daemon to install and start automatically instead of starting it manually like this. See the ['Installation'](#installation]) section below.
 
 ### Installation
 
-To install:
+To install with automatic USB HID device selection
+(the first USB HID input device found under `/dev/input`):
 ```sh
 sudo make install
+```
+To install specifying a particular USB HID device (e.g. `/dev/input/event1`):
+```sh
+sudo make install USBHID_DEVICE=/dev/input/event1
 ```
 To uninstall:
 ```sh
