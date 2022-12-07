@@ -8,6 +8,15 @@ As far as I know, this should 'just work' for the default ALSA playback device w
 The daemon installs as a [systemd](https://www.linux.com/training-tutorials/understanding-and-using-systemd/) service.
 
 ## Usage ##
+
+### Prerequisites
+TODO: fill out
+1. Install python3 and/or venv
+2. Install pip
+3. pip install evdev
+4. pip install pyalsaaudio
+5. add user to input group
+
 ### Alsa Mixer ###
 The script uses the default ALSA playback mixer control. This is one returned from the following command:
 ```sh
