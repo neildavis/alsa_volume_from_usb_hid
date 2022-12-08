@@ -9,7 +9,7 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/src/alsa_vol_from_usb_hid.py",
-            "args": [/**/"-d", "hw:0", "-c", "Master", "-i", "/dev/input/event6", "-l", "debug"],
+            "args": [/*"-d", "hw:0", "-c", "Master", "-i", "/dev/input/event6",*/ "-l", "debug", "-v", "5"],
             "console": "integratedTerminal",
             "justMyCode": true
         }
