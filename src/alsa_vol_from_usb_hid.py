@@ -16,6 +16,9 @@ class ErrorExitCode(Enum):
 valid_playback_volume_caps lists all possible valid ALSA volume caps that a mixer control may use for playback volume
 '''
 valid_playback_volume_caps = ['Volume', 'Joined Volume', 'Playback Volume', 'Joined Playback Volume']
+'''
+valid_playback_mute_caps lists all possible valid ALSA switch caps that a mixer control may use for playback muting
+'''
 valid_playback_mute_caps = ['Mute', 'Joined Mute', 'Playback Mute', 'Joined Playback Mute']
 
 '''
@@ -140,7 +143,7 @@ def get_usb_hid_input(args : Namespace) -> InputDevice:
             # Input device was specified on command line so try to use it
             input_dev_ret = InputDevice(args.input_dev)
             if not input_device_supports_volume_control(input_dev_ret):
-                logging.warning(f'Input device at {input_dev_ret.path} ({input_dev_ret.name}) does not support appear to support volume control events')
+                logging.warning(f'Input device at {input_dev_ret.path} ({input_dev_ret.name}) does not appear to support volume control events')
     except FileNotFoundError:
         input_dev_ret = None
         logging.debug(f'Input device at {args.input_dev} not found')
