@@ -3,7 +3,6 @@ Description=ALSA Volume Control from USB HID Consumer Control
 
 [Service]
 Type=simple
-User=pi
 ExecStart=%VENV_PATH%/bin/python3 %TARGET_PY% %ARGS%
 Restart=on-failure
 

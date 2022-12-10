@@ -11,9 +11,10 @@ In my case I was using a Raspberry Pi in CLI boot mode with the [ALSA SoftVol](h
 
 The daemon installs as a [systemd](https://www.linux.com/training-tutorials/understanding-and-using-systemd/) service.
 
-## Usage ##
 
-### Prerequisites ###
+## Prerequisites ##
+
+### Python envronment ###
 
 Since the daemon runs using [Python](https://www.python.org/) we need to setup the Python environment. In particular we require Python version 3, not the deprecated Python 2. Most modern Linux distros include Python3 by default, but the commands below will install it if it's missing.
 
@@ -32,14 +33,24 @@ Along with the base Python language & runtime support, we will need a few more t
     sudo apt install python3 python3-pip python3-venv
     ```
 
-### Running manually ###
+### User group requirements ###
+
+Add your user to the `input` group if necessary. This is required to allow the daemon to receive Linux evdev input events from USB HID devices.
+
+```shell
+sudo usermod -a -G input $USER
+```
+
+You will need to log out and log in again (or reboot) for this change to take effect. Again, this only has to be done once.
+
+## Running manually ##
 
 You can run daemon manually in a terminal using the steps below.
 However most of the time you will want the daemon to install and start automatically instead of starting it manually like this. In that case, skip the rest of this section and see the following sections below including:
 
-* ['Identifying ALSA cards and mixers'](#Identifying-ALSA-cards-and-mixers)
-* ['Identifying USB HID input devices](#Identifying-USB-HID-input-devices)
-* ['Installation'](#installation])
+* ['Identifying ALSA cards and mixers'](#identifying-alsa-cards-and-mixers)
+* ['Identifying USB HID input devices](#identifying-usb-hid-input-devices)
+* ['Installing'](#installing)
 
 But back to running manually in a terminal:
 
@@ -60,21 +71,8 @@ But back to running manually in a terminal:
     ```
 
     Again, this only has to be done once.
-3. Add your user to the `input` group if necessary. This is required to allow the daemon to receive Linux evdev input events from USB HID devices. First check to see if your user is already in the `input` group:
 
-    ```shell
-    groups
-    ```
-
-    This command will display all of the groups your user is a member of. if you see `input` listed in the results you're all set. If not, you need to add your user to the `input` group using this command:
-
-    ```shell
-    sudo usermod -a -G input $USER
-    ```
-
-    You will need to log out and log in again (or reboot) for this change to take effect. Again, this only has to be done once.
-
-4. Finally, run the daemon. Without any args it will try to find the best ALSA mixer device and USB HID device automatically. These, and other options can be specified manually on the command line with the `-h` flag. See the help for details:
+3. Finally, run the daemon. Without any args it will try to find the best ALSA mixer device and USB HID device automatically. These, and other options can be specified manually on the command line with the `-h` flag. See the help for details:
 
 ```monospace
     python3 src/alsa_vol_from_usb_hid.py -h
@@ -104,7 +102,7 @@ But back to running manually in a terminal:
 
 Press CTRL+C to exit.
 
-### Identifying ALSA cards and mixers ###
+## Identifying ALSA cards and mixers ##
 
 Without any `-d` argument, the daemon will attempt to use the '`default`' ALSA device.
 This is often a 'virtual device' with a 'Master' mixer control and exactly what you want!
@@ -167,7 +165,7 @@ i.e. '`Headphone`' which is the name of the ALSA mixer control you use with `-c`
 python3 src/alsa_vol_from_usb_hid.py -d hw:0 -c Headphone
 ```
 
-### Identifying USB HID input devices ###
+## Identifying USB HID input devices ##
 
 Without any `-i` argument, the daemon will attempt to find a suitable input device automatically.
 It does this by iterating all available USB input devices which identify themselves as
@@ -201,22 +199,26 @@ lrwxrwxrwx 1 root root 6 Dec  8 11:08 usb-Logitech_Logitech_Dual_Action_D4BEAFFB
 If I wanted to use the Apple keyboard I would try to use `/dev/input/event3` or `/dev/input/event4`
 and see which works. (Spoiler: it's `event4`)
 
-### Installation ###
+## Installing ##
+
+Before installing, make sure you have
+[added your user to the ```input``` group](#user-group-requirements)
+if necessary, as described above.
 
 To install with automatic ALSA device/control & USB HID device selection
 
 ```sh
-sudo make install
+make install
 ```
 
 To install specifying any additional command line args as described above, pass `ARGS` to make. e.g:
 
 ```shell
-sudo make install ARGS="-d hw:0 -c Headphone -v 5 -l warning"
+make install ARGS="-d hw:0 -c Headphone -v 5 -l warning"
 ```
 
 To uninstall:
 
 ```shell
-sudo make uninstall
+make uninstall
 ```
