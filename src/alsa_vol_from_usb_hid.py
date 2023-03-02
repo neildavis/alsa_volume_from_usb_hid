@@ -1,13 +1,19 @@
-import logging
+import logging, subprocess
 from time import sleep
 from enum import Enum
 from argparse import ArgumentParser, Namespace
 from  alsaaudio import Mixer, mixers, ALSAAudioError, PCM_PLAYBACK, MIXER_CHANNEL_ALL
 from  evdev import InputDevice, ecodes, list_devices, categorize, KeyEvent
 
+class PowerOffException(Exception):
+    '''
+    PowerOffException is raised in response to a KEY_POWER event to terminate the evdev event read loop
+    '''
+    pass
+
 class ErrorExitCode(Enum):
     '''
-    ErrorExitCode is an enumerated type for vali exit codes
+    ErrorExitCode is an enumerated type for valid exit codes
     '''
     ERROR_NONE              = 0
     ERROR_NO_ALSA_MIXER     = 1
@@ -48,6 +54,9 @@ def parse_args() -> Namespace:
         choices=list(range(0,26,5))[1:],
         default=10,
         help='Set the volume delta increments/decrements as a percentage (default=10%%)'
+    )
+    parser.add_argument('-p', '--power-off-cmd',
+        help='Command to execute uppon receiving a KEY_POWER event (default=None)'
     )
     parser.add_argument('-l', '--log-level',
         choices=['critical', 'error', 'warning', 'info', 'debug'],
@@ -192,6 +201,17 @@ def asla_mute_toggle(mixer: Mixer):
         logging.debug(f'Simulated MUTE volume change: {current_vol} -> {new_vol}')
         mixer.setvolume(new_vol, channel=MIXER_CHANNEL_ALL, pcmtype=PCM_PLAYBACK)
 
+def on_power_off(power_off_cmd: str):
+    '''
+    on_power_off() is called in response to a PowerOffException
+    '''
+    logging.debug(f'KEY_POWER event received')
+    if power_off_cmd != None:
+        logging.debug(f'Executing power_off_cmd=\'{power_off_cmd}\'')
+        subprocess.run(args=power_off_cmd, shell=True)
+    else:
+        logging.debug('No power_off_cmd to execute')
+
 def do_event_loop(input_dev: InputDevice, mixer: Mixer, volume_delta: int):
     '''
     do_event_loop contains the main kernel event handler loop to process evdev events
@@ -207,6 +227,9 @@ def do_event_loop(input_dev: InputDevice, mixer: Mixer, volume_delta: int):
                     alsa_volume_delta(mixer, -volume_delta)
                 elif key_event.scancode == ecodes.KEY_MUTE:
                     asla_mute_toggle(mixer)
+                elif key_event.scancode == ecodes.KEY_POWER:
+                    raise(PowerOffException())
+
 
 def start():
     '''
@@ -239,6 +262,9 @@ def start():
             do_event_loop(input_dev=input_dev, mixer=mixer, volume_delta=args.volume_delta)
         except OSError:
             logging.info(f'Lost connection to USB HID input device at {input_dev.path} ({input_dev.name})')
+        except PowerOffException:
+            on_power_off(args.power_off_cmd)
+            break
 
 
 if __name__ == "__main__":
