@@ -63,10 +63,14 @@ But back to running manually in a terminal:
 
     The first line to create the venv only has to be done once, although you will need to activate the env each time you login with the second line.
 2. Install some Python library dependencies using pip. in particular we require:
-    * [evdev](https://python-evdev.readthedocs.io/en/latest/) - for receiving USB HID events from the Linux kernel.
-    * [pyalsaaudio](https://larsimmisch.github.io/pyalsaaudio/) - for controlling ALSA audio mixers.
+    * [`evdev`](https://python-evdev.readthedocs.io/en/latest/) - for receiving USB HID events from the Linux kernel.
+    * [`pyalsaaudio`](https://larsimmisch.github.io/pyalsaaudio/) - for controlling ALSA audio mixers.
+
+    Installing these Python dependencies may require the `python3-dev` package to be installed
+    on your system if it's not already present:
 
     ```shell
+    sudo apt install python3-dev
     pip install evdev pyalsaaudio
     ```
 

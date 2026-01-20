@@ -4,6 +4,8 @@ Description=ALSA Volume Control from USB HID Consumer Control
 [Service]
 Type=simple
 ExecStart=%VENV_PATH%/bin/python3 %TARGET_PY% %ARGS%
+KillSignal=SIGINT
+TimeoutStopSec=10
 Restart=on-failure
 
 [Install]

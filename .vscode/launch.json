@@ -6,10 +6,10 @@
     "configurations": [
         {
             "name": "Python: alsa_vol_from_usb_hid",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/alsa_vol_from_usb_hid.py",
-            "args": [/*"-d", "hw:0", "-c", "Master", "-i", "/dev/input/event6",*/ "-l", "debug", "-v", "5"],
+            "args": ["-d", "hw:0",/* "-c", "Master", "-i", "/dev/input/event6",*/ "-l", "debug", "-v", "5"],
             "console": "integratedTerminal",
             "justMyCode": true
         }
