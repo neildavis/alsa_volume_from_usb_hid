@@ -43,70 +43,12 @@ sudo usermod -a -G input $USER
 
 You will need to log out and log in again (or reboot) for this change to take effect. Again, this only has to be done once.
 
-## Running manually ##
-
-You can run daemon manually in a terminal using the steps below.
-However most of the time you will want the daemon to install and start automatically instead of starting it manually like this. In that case, skip the rest of this section and see the following sections below including:
-
-* ['Identifying ALSA cards and mixers'](#identifying-alsa-cards-and-mixers)
-* ['Identifying USB HID input devices](#identifying-usb-hid-input-devices)
-* ['Installing'](#installing)
-
-But back to running manually in a terminal:
-
-1. Create & activate a new Python virtual environment (venv). This step is optional but recommended, to avoid polluting your system's base Python environment with otherwise unnecessary packages.
-
-    ```shell
-    python3 -m venv env
-    source env/bin/activate
-    ```
-
-    The first line to create the venv only has to be done once, although you will need to activate the env each time you login with the second line.
-2. Install some Python library dependencies using pip. in particular we require:
-    * [`evdev`](https://python-evdev.readthedocs.io/en/latest/) - for receiving USB HID events from the Linux kernel.
-    * [`pyalsaaudio`](https://larsimmisch.github.io/pyalsaaudio/) - for controlling ALSA audio mixers.
-
-    Installing these Python dependencies may require the `python3-dev` package to be installed
-    on your system if it's not already present:
-
-    ```shell
-    sudo apt install python3-dev
-    pip install evdev pyalsaaudio
-    ```
-
-    Again, this only has to be done once.
-
-3. Finally, run the daemon. Without any args it will try to find the best ALSA mixer device and USB HID device automatically. These, and other options can be specified manually on the command line with the `-h` flag. See the help for details:
-
-```monospace
-    python3 src/alsa_vol_from_usb_hid.py -h
-    usage: alsa_vol_from_usb_hid.py [-h] [-d ALSA_DEV] [-c ALSA_CTRL]
-                                    [-i INPUT_DEV] [-v {5,10,15,20,25}]
-                                    [-l {critical,error,warning,info,debug}]
-
-    Adjust ALSA mixer volume from USB HID Consumer Control device events
-
-    optional arguments:
-    -h, --help            show this help message and exit
-    -d ALSA_DEV, --alsa-dev ALSA_DEV
-                            ALSA device to use, e.g. "hw:0" (uses 'default' device
-                            if not specified)
-    -c ALSA_CTRL, --alsa-ctrl ALSA_CTRL
-                            ALSA control to use, e.g. "Master" (defaults to first
-                            playback capable control on the device)
-    -i INPUT_DEV, --input-dev INPUT_DEV
-                            Device to use for USB input (defaults to first USB HID
-                            device found under /dev/input/)
-    -v {5,10,15,20,25}, --volume-delta {5,10,15,20,25}
-                            Set the volume delta increments/decrements as a
-                            percentage (default=10%)
-    -l {critical,error,warning,info,debug}, --log-level {critical,error,warning,info,debug}
-                            Set the logging level (default='info')
-```
-
-Press CTRL+C to exit.
-
 ## Identifying ALSA cards and mixers ##
+
+By default, the damon will attempt to locate an appropriate ALSA device and mixer control automatically.
+This can be overridden by passing additional options on the command line when the daemon is started.
+
+### ALSA Cards
 
 Without any `-d` argument, the daemon will attempt to use the '`default`' ALSA device.
 This is often a 'virtual device' with a 'Master' mixer control and exactly what you want!
@@ -141,6 +83,8 @@ python3 src/alsa_vol_from_usb_hid.py -d hw:N
 
 where `N` is the card index, e.g. if I wanted to use the BCM2835 headphones output
 I would use `hw:0`
+
+### ALSA Mixers ###
 
 Without any `-c` argument, the daemon will look for a suitable 'playback' control
 on the specified card and use the first one it finds.
@@ -203,6 +147,34 @@ lrwxrwxrwx 1 root root 6 Dec  8 11:08 usb-Logitech_Logitech_Dual_Action_D4BEAFFB
 If I wanted to use the Apple keyboard I would try to use `/dev/input/event3` or `/dev/input/event4`
 and see which works. (Spoiler: it's `event4`)
 
+## Additional options
+
+Some additional options are available. When running manually (see below) these can be listed 
+by passing the `-h` flag on the command line. But I list them here for you anyway:
+
+```monospace
+    python3 src/alsa_vol_from_usb_hid.py -h
+usage: alsa_vol_from_usb_hid.py [-h] [-d ALSA_DEV] [-c ALSA_CTRL] [-i INPUT_DEV] [-v {5,10,15,20,25}] [-w] [-p POWER_OFF_CMD] [-l {critical,error,warning,info,debug}]
+
+Adjust ALSA mixer volume from USB HID Consumer Control device events
+
+options:
+  -h, --help            show this help message and exit
+  -d, --alsa-dev ALSA_DEV
+                        ALSA device to use, e.g. "hw:0" (uses 'default' device if not specified)
+  -c, --alsa-ctrl ALSA_CTRL
+                        ALSA control to use, e.g. "Master" (defaults to first playback capable control on the device)
+  -i, --input-dev INPUT_DEV
+                        Device to use for USB input (defaults to first USB HID device found under /dev/input/)
+  -v, --volume-delta {5,10,15,20,25}
+                        Set the volume delta increments/decrements as a percentage (default=10%)
+  -w, --volume-wrap     Volume will 'wrap around' if starting at 0% or 100%
+  -p, --power-off-cmd POWER_OFF_CMD
+                        Command to execute uppon receiving a KEY_POWER event (default=None)
+  -l, --log-level {critical,error,warning,info,debug}
+                        Set the logging level (default='info')
+```
+
 ## Installing ##
 
 Before installing, make sure you have
@@ -226,3 +198,48 @@ To uninstall:
 ```shell
 make uninstall
 ```
+
+## Running manually ##
+
+You can run daemon manually in a terminal using the steps below.
+However most of the time you will want the **daemon to install and start automatically** instead of starting it manually like this. In that case, **ignore this section** and see the sections above including:
+
+* ['Identifying ALSA cards and mixers'](#identifying-alsa-cards-and-mixers)
+* ['Identifying USB HID input devices](#identifying-usb-hid-input-devices)
+* ['Installing'](#installing)
+
+But back to running manually in a terminal (if you must!):
+
+1. Create & activate a new Python virtual environment (venv). This step is optional but recommended, to avoid polluting your system's base Python environment with otherwise unnecessary packages.
+
+    ```shell
+    python3 -m venv env
+    source env/bin/activate
+    ```
+
+    The first line to create the venv only has to be done once, although you will need to activate the env each time you login with the second line.
+2. Install some Python library dependencies using pip. in particular we require:
+    * [`evdev`](https://python-evdev.readthedocs.io/en/latest/) - for receiving USB HID events from the Linux kernel.
+    * [`pyalsaaudio`](https://larsimmisch.github.io/pyalsaaudio/) - for controlling ALSA audio mixers.
+
+    Installing these Python dependencies may require the `python3-dev` package to be installed
+    on your system if it's not already present:
+
+    ```shell
+    sudo apt install python3-dev
+    pip install evdev pyalsaaudio
+    ```
+
+    Again, this only has to be done once.
+
+3. Finally, run the daemon. 
+Without any args it will try to find the best ALSA mixer device and USB HID device automatically.
+These, and other options can be specified manually on the command line, as described in sections above.
+
+    ```shell
+    python3 src/alsa_vol_from_usb_hid.py
+    ```
+
+
+    Press CTRL+C to exit.
+
