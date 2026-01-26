@@ -1,6 +1,6 @@
 import logging
 from typing import Optional
-from alsaaudio import Mixer, PCM_PLAYBACK, MIXER_CHANNEL_ALL
+from alsaaudio import Mixer, PCM_PLAYBACK,VOLUME_UNITS_PERCENTAGE, MIXER_CHANNEL_ALL
 
 valid_playback_volume_caps = ['Volume', 'Joined Volume', 'Playback Volume', 'Joined Playback Volume']
 valid_playback_mute_caps = ['Mute', 'Joined Mute', 'Playback Mute', 'Joined Playback Mute']
@@ -44,14 +44,20 @@ class AlsaMixer:
         return len(caps) > 0
 
     def get_playback_volume(self) -> int:
-        return self._mixer.getvolume(pcmtype=PCM_PLAYBACK)[0]
+        return self._mixer.getvolume(pcmtype=PCM_PLAYBACK, units=VOLUME_UNITS_PERCENTAGE)[0]
 
     def set_playback_volume(self, value: int) -> None:
-        self._mixer.setvolume(value, channel=MIXER_CHANNEL_ALL, pcmtype=PCM_PLAYBACK)
+        self._mixer.setvolume(value, channel=MIXER_CHANNEL_ALL, pcmtype=PCM_PLAYBACK, units=VOLUME_UNITS_PERCENTAGE)
 
-    def change_playback_volume(self, delta: int) -> None:
+    def change_playback_volume(self, delta: int, wrap: bool = False) -> None:
         current_vol = self.get_playback_volume()
         new_vol = max(0, min(100, current_vol + delta))
+        # Do volume 'wrapping' if required
+        if current_vol == new_vol and wrap == True:
+            if new_vol == 0:
+                new_vol = 100
+            elif new_vol == 100:
+                new_vol = 0
         logging.debug(f'Volume change: delta={delta} {current_vol} -> {new_vol}')
         self.set_playback_volume(new_vol)
 

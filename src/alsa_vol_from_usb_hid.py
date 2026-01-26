@@ -26,6 +26,10 @@ def parse_args() -> Namespace:
         default=10,
         help='Set the volume delta increments/decrements as a percentage (default=10%%)'
     )
+    parser.add_argument('-w', '--volume-wrap',
+                            action='store_true',
+        help='Volume will \'wrap around\' if starting at 0%% or 100%%'
+    )
     parser.add_argument('-p', '--power-off-cmd',
         help='Command to execute uppon receiving a KEY_POWER event (default=None)'
     )

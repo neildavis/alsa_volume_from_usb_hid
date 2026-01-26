@@ -68,9 +68,9 @@ class AlsaVolumeDaemon:
         if key_event.keystate != KeyEvent.key_up:
             logging.debug(f'Received key code {key_event.scancode} ({key_event.keycode})')
             if key_event.scancode == ecodes.KEY_VOLUMEUP:
-                self.mixer.change_playback_volume(self.args.volume_delta)
+                self.mixer.change_playback_volume(self.args.volume_delta, wrap=self.args.volume_wrap)
             elif key_event.scancode == ecodes.KEY_VOLUMEDOWN:
-                self.mixer.change_playback_volume(-self.args.volume_delta)
+                self.mixer.change_playback_volume(-self.args.volume_delta, wrap=self.args.volume_wrap)
             elif key_event.scancode == ecodes.KEY_MUTE:
                 # Delegate mute handling to the mixer (native or simulated)
                 self.mixer.toggle_mute()
